@@ -1,9 +1,12 @@
-const canvas = document.getElementById("myCanvas");
-canvas.width = 200;
+const carCanvas = document.getElementById("carCanvas");
+carCanvas.width = 200;
+const networkCanvas = document.getElementById("networkCanvas");
+networkCanvas.width = 500;
 
-const ctx = canvas.getContext("2d");
-const road = new Road(canvas.width / 2, canvas.width * 0.9);
-//const car = new Car(road.getLaneCenter(1), 100, 30, 50, "keyboard");
+const carCtx = carCanvas.getContext("2d");
+const networkCtx = networkCanvas.getContext("2d");
+const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
+//const car = new Car(road.getLaneCenter(1), 400, 30, 50, "keyboard");
 const car = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
 
 const traffic = [
@@ -16,19 +19,23 @@ animate();
 
 console.info("🏁 Start your engines! 🏁");
 
-function animate() {
+function animate(time) {
     traffic.map((c) => c.update(road.borders, []));
     car.update(road.borders, traffic);
 
-    canvas.height = window.innerHeight; //this will reset the canvas
+    carCanvas.height = window.innerHeight; //this will reset the canvas
+    networkCanvas.height = window.innerHeight; //this will reset the canvas
 
-    ctx.save();
-    ctx.translate(0, -car.y + canvas.height * 0.7);
+    carCtx.save();
+    carCtx.translate(0, -car.y + carCanvas.height * 0.7);
 
-    road.draw(ctx);
-    traffic.map((c) => c.draw(ctx));
-    car.draw(ctx);
+    road.draw(carCtx);
+    traffic.map((c) => c.draw(carCtx));
+    car.draw(carCtx);
 
-    ctx.restore();
+    carCtx.restore();
+
+    networkCtx.lineDashOffset = -time / 25;
+    Visualizer.drawNetwork(networkCtx, car.brain);
     requestAnimationFrame(animate);
 }
