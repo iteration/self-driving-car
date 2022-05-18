@@ -3,9 +3,14 @@ canvas.width = 200;
 
 const ctx = canvas.getContext("2d");
 const road = new Road(canvas.width / 2, canvas.width * 0.9);
-const car = new Car(road.getLaneCenter(1), 100, 30, 50, "keyboard");
+//const car = new Car(road.getLaneCenter(1), 100, 30, 50, "keyboard");
+const car = new Car(road.getLaneCenter(1), 100, 30, 50, "AI");
 
-const traffic = [new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2)];
+const traffic = [
+    new Car(road.getLaneCenter(1), -100, 30, 50, "DUMMY", 2),
+    new Car(road.getLaneCenter(0), 400, 30, 50, "DUMMY", 7),
+    new Car(road.getLaneCenter(2), -25, 30, 50, "DUMMY", 2.5),
+];
 
 animate();
 
