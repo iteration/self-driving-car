@@ -1,5 +1,5 @@
 const carCanvas = document.getElementById("carCanvas");
-carCanvas.width = 200;
+carCanvas.width = 175;
 const networkCanvas = document.getElementById("networkCanvas");
 networkCanvas.width = 500;
 
@@ -8,19 +8,23 @@ const networkCtx = networkCanvas.getContext("2d");
 const road = new Road(carCanvas.width / 2, carCanvas.width * 0.9);
 //const car = new Car(road.getLaneCenter(1), 10000, 30, 50, "keyboard");
 
-const N = 100;
+const N = 200;
 const cars = generateCars(N);
 let bestCar = cars[0];
 if (localStorage.getItem("bestBrain")) {
-    cars.forEach((car, index) => {
+    cars.forEach((car, index, cars) => {
         car.brain = JSON.parse(localStorage.getItem("bestBrain"));
 
         if (index != 0) {
             console.info("Mutated: 🧠 " + car.brain.id);
-            NeuralNetwork.mutate(car.brain, 0.2);
+            NeuralNetwork.mutate(car.brain, 0.25);
+            const id = uuidv4();
+            car.brain.id = id;
+            car.updated = true;
         }
     });
-    console.info("Cloned: 🧠 " + cars[0].brain.id);
+
+    console.info("🧠  Cloned: " + cars[0].brain.id);
 }
 
 const traffic = [
@@ -30,14 +34,24 @@ const traffic = [
     new Car(road.getLaneCenter(1), -1000, 30, 50, "DUMMY", 2),
     new Car(road.getLaneCenter(0), -400, 30, 50, "DUMMY", 1),
     new Car(road.getLaneCenter(2), -2500, 30, 50, "DUMMY", 2.5),
+    new Car(road.getLaneCenter(1), -1000, 30, 50, "DUMMY", 2),
+    new Car(road.getLaneCenter(0), 4000, 30, 50, "DUMMY", 7),
+    new Car(road.getLaneCenter(2), -2000, 30, 50, "DUMMY", 2.5),
+    new Car(road.getLaneCenter(1), -10000, 30, 50, "DUMMY", 2),
+    new Car(road.getLaneCenter(0), -4000, 30, 50, "DUMMY", 1),
+    new Car(road.getLaneCenter(2), -25000, 30, 50, "DUMMY", 2.5),
+    new Car(road.getLaneCenter(1), -1000, 30, 50, "DUMMY", 2),
+    new Car(road.getLaneCenter(0), 5000, 30, 50, "DUMMY", 7),
+    new Car(road.getLaneCenter(2), -4000, 30, 50, "DUMMY", 2.5),
+    new Car(road.getLaneCenter(1), -11000, 30, 50, "DUMMY", 2),
+    new Car(road.getLaneCenter(0), -4500, 30, 50, "DUMMY", 1),
+    new Car(road.getLaneCenter(2), -3300, 30, 50, "DUMMY", 2.5),
 ];
 
 animate();
 
 function save() {
-    const id = uuidv4();
-    console.info("Saving: 🥇🧠 " + id);
-    bestCar.brain.id = id;
+    console.info("Saving: 🧠 " + bestCar.brain.id);
     localStorage.setItem("bestBrain", JSON.stringify(bestCar.brain));
 }
 
@@ -71,7 +85,11 @@ function animate(time) {
 
     cars.map((car) => car.update(road.borders, traffic));
 
-    bestCar = cars.find((c) => c.y == Math.min(...cars.map((c) => c.y)));
+    let topCar = cars.find((c) => c.y == Math.min(...cars.map((c) => c.y)));
+    if (bestCar != topCar) {
+        console.info("🥇 New leader: " + topCar.brain.id);
+        bestCar = topCar;
+    }
 
     carCanvas.height = window.innerHeight;
     networkCanvas.height = window.innerHeight;
